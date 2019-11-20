@@ -1,8 +1,12 @@
 import React, { Component } from 'react';
+import "../App.css";
+import { HashRouter, Route, Link} from 'react-router-dom';
 import SearchBox from './SearchBox.js';
 import MovieList from './MovieList';
 import Pagination from './Pagination';
 import MovieDetail from './MovieDetail';
+import Favorites from './Favorites';
+import {Button, Tooltip} from '@material-ui/core';
 
 class App extends Component {
   constructor() {
@@ -12,7 +16,7 @@ class App extends Component {
       searchTerm: '',
       totalResults: 0,
       currentPage: 1,
-      currentMovie: null,
+      favorites: [],
     }
     this.apiKey = process.env.REACT_APP_API
   }
@@ -47,21 +51,6 @@ class App extends Component {
         this.setState({ movies: data.Search, currentPage: pageNumber})
       }
     })
-  }
-
-  viewMovieDetail = (id) => {
-    fetch(`http://www.omdbapi.com/?apikey=${this.apiKey}&i=${id}`)
-    .then(data => data.json())
-    .then(data => {
-      if (data.Response) {
-        this.setState({ currentMovie: data})
-      }
-    })
-  }
-
-  closeMovieDetail = () => {
-    // go back to the list
-    this.setState({currentMovie: null})
   }
 
   updateFavorites(id) {
@@ -102,44 +91,87 @@ class App extends Component {
     const numberPages = Math.floor(this.state.totalResults / 10);
 
     return (
+      <HashRouter basename='/'>
       <div className="App">
-          <table className='titleBar'>
-            <tbody>
-              <tr>
-                <td>
-                  <img alt='app icon' width='50' src='free-movies-icon-21.jpg' />
-                </td>
-                <td width='8' />
-                <td>
-                  <h1>Movies DB Search</h1>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div className='titleBar'>
+          <div>
+            <img alt='app icon' width='50' src='free-movies-icon-21.jpg' />
+          </div>
+          <div>
+            <h1>Movie Search</h1>
+          </div>
+          <div>
+            <Tooltip title="Show favorites" >
+              <Button component={ Link } to='/favorites' size='small' variant="contained" color='primary' >
+                Favorites
+              </Button>
+            </Tooltip>
+            <Tooltip title="Search movies">
+              <Button component={ Link } to='/' size='small' variant="contained" color='primary' >
+                Search
+              </Button>
+            </Tooltip>
+          </div>
+        </div>
 
-          {this.state.currentMovie !== null ?
-            <MovieDetail currentMovie={this.state.currentMovie}
-              closeMovieDetail={this.closeMovieDetail}
-              updateFavorites={this.updateFavorites}
-              checkFavorite={this.checkFavorite}/> :
+        {/* this is the way to pass props to a component which shoud render by React Router*/}
+        <Route
+          exact path='/'
+          render={(props) =>
             <div>
-              <SearchBox handleSubmit={this.handleSubmit} handleChange={this.handleChange}/>
+              <SearchBox {...props} handleSubmit={this.handleSubmit} handleChange={this.handleChange} />
               <MovieList movies={this.state.movies}
-                viewMovieDetail={this.viewMovieDetail}
                 updateFavorites={this.updateFavorites}
-                checkFavorite={this.checkFavorite}/>
+                checkFavorite={this.checkFavorite}
+              />
               { this.state.totalResults > 10 ?
                 <Pagination pages={numberPages} nextPage={this.nextPage} currentPage={this.state.currentPage}/> :
                 ''
               }
             </div>
           }
-
-
-        </div>
+        />
+        <Route
+          path="/favorites"
+          render={() => <Favorites />}
+        />
+        <Route
+          path={'/:imdbID'}
+          render={(props) =>
+            <MovieDetail {...props}
+              apiKey={this.apiKey}
+              updateFavorites={this.updateFavorites}
+              checkFavorite={this.checkFavorite}
+            />
+          }
+        />
+      </div>
+      </HashRouter>
     );
   }
 
 }
 
+
+
+// path={`/movie/:${this.state.currentMovie.imdbID}`}
+// currentMovie={this.state.currentMovie}
 export default App;
+
+// {this.state.currentMovie !== null ?
+//   <MovieDetail currentMovie={this.state.currentMovie}
+//   closeMovieDetail={this.closeMovieDetail}
+//   updateFavorites={this.updateFavorites}
+//   checkFavorite={this.checkFavorite}/>
+//  :
+// <div>
+//   <SearchBox handleSubmit={this.handleSubmit} handleChange={this.handleChange}/>
+  // <MovieList movies={this.state.movies}
+  //   updateFavorites={this.updateFavorites}
+  //   checkFavorite={this.checkFavorite}/>
+  // { this.state.totalResults > 10 ?
+  //   <Pagination pages={numberPages} nextPage={this.nextPage} currentPage={this.state.currentPage}/> :
+  //   ''
+  // }
+// </div>
+// }

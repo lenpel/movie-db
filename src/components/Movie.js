@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import {Link} from 'react-router-dom';
 import Button from '@material-ui/core/Button';
 import { Card, IconButton, CardActionArea, CardContent, CardActions, CardMedia, Typography} from '@material-ui/core';
 import StarIcon from '@material-ui/icons/Star';
@@ -23,7 +24,7 @@ class Movie extends Component {
 
   return(
     <Card style={style.Card}>
-      <CardActionArea onClick={() => this.props.viewMovieDetail(this.props.movieId)}>
+      <CardActionArea component={ Link } to={`/${this.props.movieId}`}>
         <CardMedia
           style={style.Media}
           image={poster_src}
@@ -35,8 +36,9 @@ class Movie extends Component {
           </Typography>
         </CardContent>
       </CardActionArea>
+
       <CardActions>
-        <Button size="small" color="primary" onClick={() => this.props.viewMovieDetail(this.props.movieId)}>
+        <Button component={ Link } to={`/${this.props.movieId}`} size="small" variant="contained" color="primary">
           Detail
         </Button>
         <IconButton aria-label="add to favorites"

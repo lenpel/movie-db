@@ -17,7 +17,6 @@ const MovieList = (props) => {
                     <Movie key={i}
                         updateFavorites={props.updateFavorites}
                         checkFavorite={props.checkFavorite}
-                        viewMovieDetail={props.viewMovieDetail}
                         movieId={movie.imdbID}
                         poster={movie.Poster}
                         title={movie.Title}/>
