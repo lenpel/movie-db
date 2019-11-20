@@ -55,7 +55,7 @@ class MovieDetail extends Component {
                             <IconButton aria-label="add to favorites"
                                 onClick={() => {
                                     this.setState({isFavorite: !isFavorite});
-                                    updateFavorites(currentMovie.imdbID)
+                                    updateFavorites(currentMovie.imdbID, currentMovie.Title, poster_src)
                                 }}
                             >
                                 <StarIcon

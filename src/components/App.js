@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import "../App.css";
-import { HashRouter, Route, Link} from 'react-router-dom';
+import { HashRouter, Route, Link, Switch} from 'react-router-dom';
 import SearchBox from './SearchBox.js';
 import MovieList from './MovieList';
 import Pagination from './Pagination';
 import MovieDetail from './MovieDetail';
-import Favorites from './Favorites';
-import {Button, Tooltip} from '@material-ui/core';
+import {Button, Tooltip, Typography,} from '@material-ui/core';
 
 class App extends Component {
   constructor() {
@@ -16,7 +15,6 @@ class App extends Component {
       searchTerm: '',
       totalResults: 0,
       currentPage: 1,
-      favorites: [],
     }
     this.apiKey = process.env.REACT_APP_API
   }
@@ -53,41 +51,38 @@ class App extends Component {
     })
   }
 
-  updateFavorites(id) {
+  updateFavorites(id, title, poster) {
     // update local storage - called onClick
     let favorites = localStorage.getItem('favoriteMovies');
     let arr = [];
     if (favorites) {
       arr = JSON.parse(favorites);
     }
-    if (!arr || !arr.includes(id)) {
+
+    const found = arr.some(el => el.imdbID === id);
+    if (!arr || !found) {
       // movie not found in favorites so add it
-      arr.push(id);
+      arr.push({ imdbID: id, Title: title, Poster: poster });
+      localStorage.setItem('favoriteMovies', JSON.stringify(arr));
     } else {
       // remove the movie from favorites
-      let index = arr.indexOf(id);
-      if (index > -1) {
-        arr.splice(index, 1);
-      }
+      const removedArr = arr.filter( el => el.imdbID !== id );
+      localStorage.setItem('favoriteMovies', JSON.stringify(removedArr));
     }
-    localStorage.setItem('favoriteMovies', JSON.stringify(arr));
+
   }
 
   checkFavorite(id) {
     // get the array from local storage
-    // parse the array and check if movie is in favorites
-    let favorites = localStorage.getItem('favoriteMovies');
-
-    if (favorites) {
-      const arr = JSON.parse(favorites);
-      if (arr.includes(id)) {
-        return true;
-      }
-    }
-    return false;
+    // and check if movie is in favorites
+    let favorites = JSON.parse(localStorage.getItem('favoriteMovies'));
+    if (!favorites) return false;
+    const found = favorites.some(el => el.imdbID === id);
+    return found;
   }
 
   render() {
+
     const numberPages = Math.floor(this.state.totalResults / 10);
 
     return (
@@ -114,37 +109,50 @@ class App extends Component {
           </div>
         </div>
 
+        <Switch>
         {/* this is the way to pass props to a component which shoud render by React Router*/}
-        <Route
-          exact path='/'
-          render={(props) =>
-            <div>
-              <SearchBox {...props} handleSubmit={this.handleSubmit} handleChange={this.handleChange} />
-              <MovieList movies={this.state.movies}
+          <Route
+            exact path='/'
+            render={(props) =>
+              <div>
+                <SearchBox {...props} handleSubmit={this.handleSubmit} handleChange={this.handleChange} />
+                { this.state.movies.length !== 0 &&
+                    <MovieList  {...props} movies={this.state.movies}
+                    updateFavorites={this.updateFavorites}
+                    checkFavorite={this.checkFavorite}
+                  />
+                }
+                { this.state.totalResults > 10 ?
+                  <Pagination pages={numberPages} nextPage={this.nextPage} currentPage={this.state.currentPage}/> :
+                  ''
+                }
+              </div>
+            }
+          />
+          <Route
+            path="/favorites"
+            render={(props) =>
+              <div>
+                <Typography variant="h2" component="h2" gutterBottom align='center'>Favorite movies</Typography>
+                <MovieList {...props}
+                  movies={[]}
+                  updateFavorites={this.updateFavorites}
+                  checkFavorite={this.checkFavorite}
+                />
+              </div>
+            }
+          />
+          <Route
+            path='/:imdbID'
+            render={(props) =>
+              <MovieDetail {...props}
+                apiKey={this.apiKey}
                 updateFavorites={this.updateFavorites}
                 checkFavorite={this.checkFavorite}
               />
-              { this.state.totalResults > 10 ?
-                <Pagination pages={numberPages} nextPage={this.nextPage} currentPage={this.state.currentPage}/> :
-                ''
-              }
-            </div>
-          }
-        />
-        <Route
-          path="/favorites"
-          render={() => <Favorites />}
-        />
-        <Route
-          path={'/:imdbID'}
-          render={(props) =>
-            <MovieDetail {...props}
-              apiKey={this.apiKey}
-              updateFavorites={this.updateFavorites}
-              checkFavorite={this.checkFavorite}
-            />
-          }
-        />
+            }
+          />
+        </Switch>
       </div>
       </HashRouter>
     );
@@ -152,26 +160,4 @@ class App extends Component {
 
 }
 
-
-
-// path={`/movie/:${this.state.currentMovie.imdbID}`}
-// currentMovie={this.state.currentMovie}
 export default App;
-
-// {this.state.currentMovie !== null ?
-//   <MovieDetail currentMovie={this.state.currentMovie}
-//   closeMovieDetail={this.closeMovieDetail}
-//   updateFavorites={this.updateFavorites}
-//   checkFavorite={this.checkFavorite}/>
-//  :
-// <div>
-//   <SearchBox handleSubmit={this.handleSubmit} handleChange={this.handleChange}/>
-  // <MovieList movies={this.state.movies}
-  //   updateFavorites={this.updateFavorites}
-  //   checkFavorite={this.checkFavorite}/>
-  // { this.state.totalResults > 10 ?
-  //   <Pagination pages={numberPages} nextPage={this.nextPage} currentPage={this.state.currentPage}/> :
-  //   ''
-  // }
-// </div>
-// }

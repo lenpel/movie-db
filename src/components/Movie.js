@@ -44,7 +44,7 @@ class Movie extends Component {
         <IconButton aria-label="add to favorites"
           onClick={() => {
             this.setState({ isFavorite: !this.state.isFavorite});
-            this.props.updateFavorites(this.props.movieId)
+            this.props.updateFavorites(this.props.movieId, this.props.title, poster_src)
           }}
         >
           <StarIcon color={this.props.checkFavorite(this.props.movieId)? 'secondary': 'inherit'}/>

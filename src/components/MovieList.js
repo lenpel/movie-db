@@ -3,16 +3,26 @@ import Movie from './Movie';
 import { GridList } from '@material-ui/core';
 
 const MovieList = (props) => {
-    if (!props.movies) {
+    let movies;
+    if (props.match.url === '/favorites') {
+        movies = JSON.parse(localStorage.getItem('favoriteMovies'));
+        if (!movies) {
+            movies = [];
+        }
+    } else {
+        movies = props.movies;
+
+    }
+    if (!movies || movies.length === 0) {
         return(
-            <h2>No or too many results</h2>
+            <h2>No results</h2>
         )
     }
 
     return(
         <GridList cellHeight={345} style={{justifyContent: 'center', marginLeft: -10}}>
         {
-            props.movies.map((movie, i) => {
+            movies.map((movie, i) => {
                 return (
                     <Movie key={i}
                         updateFavorites={props.updateFavorites}
