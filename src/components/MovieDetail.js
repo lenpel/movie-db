@@ -14,7 +14,7 @@ class MovieDetail extends Component {
     componentDidMount() {
         const apiKey = process.env.REACT_APP_API;
         const id = this.props.match.params.imdbID;
-        fetch(`http://www.omdbapi.com/?apikey=${apiKey}&i=${id}&plot=full`)
+        fetch(`https://www.omdbapi.com/?apikey=${apiKey}&i=${id}&plot=full`)
         .then(data => data.json())
         .then(data => {
             if (data.Response) {

@@ -28,7 +28,7 @@ class App extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    fetch(`http://www.omdbapi.com/?apikey=${this.apiKey}&s=${this.state.searchTerm}`)
+    fetch(`https://www.omdbapi.com/?apikey=${this.apiKey}&s=${this.state.searchTerm}`)
     .then(data => data.json())
     .then(data => {
       if (data.Response) {
@@ -42,7 +42,7 @@ class App extends Component {
   }
 
   nextPage = (pageNumber) => {
-    fetch(`http://www.omdbapi.com/?apikey=${this.apiKey}&s=${this.state.searchTerm}&page=${pageNumber}`)
+    fetch(`https://www.omdbapi.com/?apikey=${this.apiKey}&s=${this.state.searchTerm}&page=${pageNumber}`)
     .then(data => data.json())
     .then(data => {
       if (data.Response) {
